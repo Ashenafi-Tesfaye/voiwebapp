@@ -38,6 +38,9 @@ tr:hover{background:#F0F0F0;cursor:pointer}
 <header>
   <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Seal_of_the_Maryland_State_Police.svg" alt="" style="height:32px">
   <h1 style="font-size:20px;font-weight:500">VOI Dashboard</h1>
+  <div style="margin-left:auto">
+    <button id="logoutBtn" style="padding:8px 16px;background:#C62828;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px">Logout</button>
+  </div>
 </header>
 
 <!-- Main -->
@@ -52,27 +55,42 @@ tr:hover{background:#F0F0F0;cursor:pointer}
 <footer>Maryland State Police • VOI v2.0 • © 2025</footer>
 
 <script>
-/* ─── Mock fetch helpers (swap with real API) ─── */
-const fetchStats = () => Promise.resolve({total:230,silver:7,amber:5,stolen:10,warrant:3});
-const fetchRecent = () => Promise.resolve([
-  {plate:'ABC123',reason:'Amber Alert',updated:'2025-06-22'},
-  {plate:'XYZ987',reason:'Stolen',updated:'2025-06-21'},
-  {plate:'DEF456',reason:'Silver Alert',updated:'2025-06-20'}
-]);
+/* ─── API fetch helpers ─── */
+const fetchStats = () => fetch('/api/vehicles/stats').then(r => r.json()).catch(() => ({total:0,silverAlerts:0,amberAlerts:0,stolen:0,warrants:0}));
+const fetchRecent = () => fetch('/api/vehicles/recent').then(r => r.json()).then(vehicles => 
+  vehicles.map(v => ({
+    plate: v.licensePlate,
+    reason: v.reason,
+    updated: v.updatedDate ? new Date(v.updatedDate).toLocaleDateString() : 'N/A'
+  }))
+).catch(() => []);
 
 /* ─── Render Stats Tiles ─── */
 fetchStats().then(s=>{
   const wrap=document.getElementById('stats');
   const tile=(lbl,val)=>`<div class="card stat" tabindex="0"><h2>${val}</h2><p>${lbl}</p></div>`;
-  wrap.innerHTML = tile('Total Vehicles',s.total)+tile('Silver Alerts',s.silver)+
-                   tile('Amber Alerts',s.amber)+tile('Stolen',s.stolen)+tile('Warrants',s.warrant);
+  wrap.innerHTML = tile('Total Vehicles',s.total)+tile('Silver Alerts',s.silverAlerts)+
+                   tile('Amber Alerts',s.amberAlerts)+tile('Stolen',s.stolen)+tile('Warrants',s.warrants);
 });
 
 /* ─── Render Recent Table ─── */
 fetchRecent().then(rows=>{
   const tbl=document.getElementById('recentTbl');
-  tbl.innerHTML = `<thead><tr><th>Plate</th><th>Reason</th><th>Updated</th></tr></thead>
-                   <tbody>${rows.map(r=>`<tr><td>${r.plate}</td><td>${r.reason}</td><td>${r.updated}</td></tr>`).join('')}</tbody>`;
+  if(rows.length === 0) {
+    tbl.innerHTML = `<thead><tr><th>Plate</th><th>Reason</th><th>Updated</th></tr></thead>
+                     <tbody><tr><td colspan="3" style="text-align:center;color:#999">No recent data available</td></tr></tbody>`;
+  } else {
+    tbl.innerHTML = `<thead><tr><th>Plate</th><th>Reason</th><th>Updated</th></tr></thead>
+                     <tbody>${rows.map(r=>`<tr><td>${r.plate}</td><td>${r.reason}</td><td>${r.updated}</td></tr>`).join('')}</tbody>`;
+  }
+});
+
+// Logout functionality
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if(confirm('Are you sure you want to logout?')) {
+    sessionStorage.removeItem('voiAuth');
+    location.href = 'login.html';
+  }
 });
 </script>
 </body></html>

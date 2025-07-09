@@ -40,6 +40,9 @@ input[type=search]{padding:8px 10px;width:250px;border:1px solid #CCC;border-rad
 <header>
   <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Seal_of_the_Maryland_State_Police.svg" alt="" style="height:32px">
   <h1 style="font-size:20px;font-weight:500">Reasons Reference</h1>
+  <div style="margin-left:auto">
+    <button id="logoutBtn" style="padding:8px 16px;background:#C62828;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px">Logout</button>
+  </div>
 </header>
 
 <!-- Main content -->
@@ -55,13 +58,43 @@ input[type=search]{padding:8px 10px;width:250px;border:1px solid #CCC;border-rad
 <footer>Maryland State Police • VOI v2.0 • © 2025</footer>
 
 <script>
-/* Static data → swap with /reasons API */
-const REASONS=[
-  {name:'Amber Alert',desc:'Child abduction alert',count:5},
-  {name:'Silver Alert',desc:'Missing elderly person',count:7},
-  {name:'Stolen',desc:'Vehicle reported stolen',count:10},
-  {name:'Arrest Warrant',desc:'Owner has active warrant',count:3}
-];
+/* API Integration for Reasons */
+let REASONS = [];
+
+async function fetchReasonsData() {
+  try {
+    const [reasonsResponse, statsResponse] = await Promise.all([
+      fetch('/api/vehicles/reasons'),
+      fetch('/api/vehicles/stats')
+    ]);
+    
+    const reasonsList = await reasonsResponse.json();
+    const stats = await statsResponse.json();
+    
+    // Map reasons with their descriptions and counts
+    const reasonsMap = {
+      'Silver Alert': { desc: 'Missing elderly person', count: stats.silverAlerts },
+      'Amber Alert': { desc: 'Child abduction alert', count: stats.amberAlerts },
+      'Stolen': { desc: 'Vehicle reported stolen', count: stats.stolen },
+      'Arrest Warrant': { desc: 'Owner has active warrant', count: stats.warrants }
+    };
+    
+    REASONS = reasonsList.map(reason => ({
+      name: reason,
+      desc: reasonsMap[reason]?.desc || 'No description available',
+      count: reasonsMap[reason]?.count || 0
+    }));
+    
+    render(REASONS);
+  } catch (error) {
+    console.error('Error fetching reasons data:', error);
+    // Fallback data
+    REASONS = [
+      {name:'Data Error',desc:'Unable to load from server',count:0}
+    ];
+    render(REASONS);
+  }
+}
 
 /* Render helper */
 function render(list){
@@ -74,12 +107,22 @@ function render(list){
     th.onclick=()=>{const k=th.dataset.k;render([...list].sort((a,b)=>String(a[k]).localeCompare(String(b[k]))));};
   });
 }
-render(REASONS);
 
 /* Filter box */
 document.getElementById('rSearch').oninput=e=>{
   const q=e.target.value.toUpperCase();
   render(REASONS.filter(r=>r.name.toUpperCase().includes(q)||r.desc.toUpperCase().includes(q)));
 };
+
+// Initialize the page
+fetchReasonsData();
+
+// Logout functionality
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if(confirm('Are you sure you want to logout?')) {
+    sessionStorage.removeItem('voiAuth');
+    location.href = 'login.html';
+  }
+});
 </script>
 </body></html>

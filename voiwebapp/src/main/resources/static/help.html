@@ -1,5 +1,15 @@
 <!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><title>VOI • Help</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><title>VOI • Help</title><meta name="viewport" conte  <section class="faq">
+    <h3 tabindex="0">🏗️ Application Information</h3>
+    <p hidden>
+      <strong>Purpose:</strong> Read-only access to vehicle alert database for law enforcement<br>
+      <strong>Data Sources:</strong> Integrated with NCIC, state DMV, and local police databases<br>
+      <strong>Coverage:</strong> Statewide vehicle alerts and BOLO (Be On the Lookout) notices<br>
+      <strong>Updates:</strong> Real-time synchronization with central dispatch systems<br>
+      <strong>Access Level:</strong> Authorized personnel only with valid credentials<br>
+      <strong>Data Retention:</strong> Historical records maintained per departmental policy
+    </p>
+  </section>=device-width,initial-scale=1">
 <!-- Shared MSP CSS -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
@@ -17,8 +27,39 @@ main{margin:88px 32px 64px 272px;flex:1;max-width:800px}
 footer{position:fixed;left:240px;right:0;bottom:0;background:#37474F;color:#FFF;text-align:center;padding:8px;font-size:13px}
 @media(max-width:767px){aside{display:none}header{left:0}main{margin:88px 16px 64px 16px}footer{left:0}}
 /* FAQ accordion */
-.faq h3{cursor:pointer;padding:8px 0;font-weight:500}
-.faq p{margin-left:8px;padding:4px 0}
+.faq h3{
+  cursor:pointer;
+  padding:12px 16px;
+  font-weight:500;
+  background:#F8F9FA;
+  border-radius:6px;
+  margin-bottom:8px;
+  border-left:4px solid var(--navy);
+  transition:background-color 0.2s ease;
+  user-select:none;
+}
+.faq h3:hover{
+  background:#E3F2FD;
+}
+.faq h3::after{
+  content:'▼';
+  float:right;
+  font-size:12px;
+  color:var(--navy);
+  transition:transform 0.2s ease;
+}
+.faq h3.collapsed::after{
+  transform:rotate(-90deg);
+}
+.faq p{
+  margin-left:20px;
+  padding:8px 16px 16px 16px;
+  background:#FAFAFA;
+  border-radius:0 0 6px 6px;
+  margin-bottom:16px;
+  line-height:1.5;
+  border-left:4px solid #E0E0E0;
+}
 </style>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head><body>
@@ -35,6 +76,9 @@ footer{position:fixed;left:240px;right:0;bottom:0;background:#37474F;color:#FFF;
 <header>
   <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Seal_of_the_Maryland_State_Police.svg" alt="" style="height:32px">
   <h1 style="font-size:20px;font-weight:500">Help & FAQ</h1>
+  <div style="margin-left:auto">
+    <button id="logoutBtn" style="padding:8px 16px;background:#C62828;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px">Logout</button>
+  </div>
 </header>
 
 <!-- Main -->
@@ -42,12 +86,54 @@ footer{position:fixed;left:240px;right:0;bottom:0;background:#37474F;color:#FFF;
   <h2>Frequently Asked Questions</h2><br>
 
   <section class="faq">
-    <h3 tabindex="0">🔍 How do I look up a vehicle?</h3>
-    <p hidden>Open <em>Vehicles</em>, then type a plate, make, or model into the search bar. Results filter instantly.</p>
+    <h3 tabindex="0">🔍 How do I search for vehicles?</h3>
+    <p hidden>Go to the <em>Vehicles</em> page and use the search bar to find vehicles by license plate, make, model, or owner name. The search updates results in real-time as you type.</p>
   </section><hr>
 
   <section class="faq">
-    <h3 tabindex="0">🎨 What do the badge colours mean?</h3>
+    <h3 tabindex="0">🎨 What do the badge colors mean?</h3>
+    <p hidden>
+      <strong>Gray:</strong> Silver Alert (missing elderly person)<br>
+      <strong>Orange:</strong> Amber Alert (child abduction)<br>
+      <strong>Red:</strong> Stolen Vehicle<br>
+      <strong>Purple:</strong> Arrest Warrant (owner has active warrant)
+    </p>
+  </section><hr>
+
+  <section class="faq">
+    <h3 tabindex="0">📊 What information is displayed?</h3>
+    <p hidden>Each vehicle record shows license plate, reason for alert, make/model, year, color, owner information, and last update date. Click any row to see detailed information in a popup.</p>
+  </section><hr>
+
+  <section class="faq">
+    <h3 tabindex="0">🔄 How often is the data updated?</h3>
+    <p hidden>This web application displays read-only data. All updates are managed by the desktop application used by authorized personnel. The web app shows the current state of the database.</p>
+  </section><hr>
+
+  <section class="faq">
+    <h3 tabindex="0">🔐 How does authentication work?</h3>
+    <p hidden>For demonstration purposes, the login accepts any non-empty username and password. In production, this would be integrated with the department's authentication system.</p>
+  </section><hr>
+
+  <section class="faq">
+    <h3 tabindex="0">📱 Is this mobile-friendly?</h3>
+    <p hidden>Yes! The interface adapts to mobile devices. On smaller screens, the sidebar navigation is hidden to maximize viewing space.</p>
+  </section><hr>
+
+  <section class="faq">
+    <h3 tabindex="0">�️ Technical Information</h3>
+    <p hidden>
+      <strong>Backend:</strong> Spring Boot with H2 in-memory database<br>
+      <strong>Frontend:</strong> HTML, CSS, JavaScript<br>
+      <strong>Deployment:</strong> Heroku-ready with Procfile<br>
+      <strong>Data:</strong> Pre-loaded with 31 test vehicle records
+    </p>
+  </section><hr>
+
+  <section class="faq">
+    <h3 tabindex="0">❓ Need More Help?</h3>
+    <p hidden>Contact your IT department or system administrator for technical support. This application is designed for read-only access to vehicle alert information.</p>
+  </section>
     <p hidden>Orange = Amber Alert, Grey = Silver Alert, Red = Stolen, Purple = Arrest Warrant.</p>
   </section><hr>
 
@@ -63,14 +149,53 @@ footer{position:fixed;left:240px;right:0;bottom:0;background:#37474F;color:#FFF;
 <footer>Maryland State Police • VOI v2.0 • © 2025</footer>
 
 <script>
-/* Simple accordion */
-document.querySelectorAll('.faq h3').forEach(h=>{
-  h.addEventListener('click',()=>toggle(h));
-  h.addEventListener('keydown',e=>e.key==='Enter'&&toggle(h));
+/* Enhanced FAQ accordion */
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize all FAQ items as collapsed
+  document.querySelectorAll('.faq h3').forEach(h => {
+    h.classList.add('collapsed');
+    const answer = h.nextElementSibling;
+    if(answer) answer.hidden = true;
+  });
+  
+  // Add click handlers
+  document.querySelectorAll('.faq h3').forEach(h=>{
+    h.addEventListener('click',()=>toggleFAQ(h));
+    h.addEventListener('keydown',e=>{
+      if(e.key==='Enter' || e.key===' ') {
+        e.preventDefault();
+        toggleFAQ(h);
+      }
+    });
+  });
 });
-function toggle(el){
-  const p = el.nextElementSibling;
-  p.hidden = !p.hidden;
+
+function toggleFAQ(questionElement){
+  const answer = questionElement.nextElementSibling;
+  const isCollapsed = questionElement.classList.contains('collapsed');
+  
+  if(isCollapsed) {
+    // Expand
+    questionElement.classList.remove('collapsed');
+    answer.hidden = false;
+  } else {
+    // Collapse
+    questionElement.classList.add('collapsed');
+    answer.hidden = true;
+  }
 }
+
+// Legacy function for compatibility
+function toggle(el) {
+  toggleFAQ(el);
+}
+
+// Logout functionality
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if(confirm('Are you sure you want to logout?')) {
+    sessionStorage.removeItem('voiAuth');
+    location.href = 'login.html';
+  }
+});
 </script>
 </body></html>
