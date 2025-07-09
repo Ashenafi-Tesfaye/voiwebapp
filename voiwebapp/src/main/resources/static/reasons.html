@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><title>VOI • Reasons</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- ─── Shared Brand CSS (identical across all pages) ─── -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+:root{
+  --navy:#002D62;--gold:#FFCC00;--bg:#F5F7FA;--surface:#FFFFFF;
+  --badge-silver:#607D8B;--badge-amber:#F57C00;--badge-stolen:#C62828;--badge-warrant:#6A1B9A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Roboto,sans-serif;background:var(--bg);color:#212121;display:flex;min-height:100vh}
+/* Layout */
+aside{width:240px;background:var(--navy);color:#FFF;position:fixed;inset-block:0;left:0;padding-top:64px}
+aside a{display:flex;gap:12px;align-items:center;padding:14px 24px;color:#FFF;text-decoration:none;font-size:15px}
+aside a:hover,aside a.active{background:#003B84}
+header{height:64px;position:fixed;left:240px;right:0;top:0;background:var(--navy);color:#FFF;display:flex;align-items:center;gap:16px;padding:0 24px}
+main{margin:88px 32px 64px 272px;flex:1}
+footer{position:fixed;left:240px;right:0;bottom:0;background:#37474F;color:#FFF;text-align:center;padding:8px;font-size:13px}
+@media(max-width:767px){aside{display:none}header{left:0}main{margin:88px 16px 64px 16px}footer{left:0}}
+/* Card, table, badges */
+.card{background:var(--surface);border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.08);padding:16px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:12px;border-bottom:1px solid #E0E0E0}
+th{background:#FAFAFA;text-align:left;font-weight:600;font-size:14px;cursor:pointer}
+tr:hover{background:#F0F0F0}
+input[type=search]{padding:8px 10px;width:250px;border:1px solid #CCC;border-radius:4px}
+</style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head><body>
+
+<!-- SideNav -->
+<aside aria-label="Primary navigation">
+  <a href="index.html"><span class="material-icons">dashboard</span>Dashboard</a>
+  <a href="vehicles.html"><span class="material-icons">directions_car</span>Vehicles</a>
+  <a href="reasons.html" class="active"><span class="material-icons">info</span>Reasons</a>
+  <a href="help.html"><span class="material-icons">help</span>Help</a>
+</aside>
+
+<!-- AppBar -->
+<header>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Seal_of_the_Maryland_State_Police.svg" alt="" style="height:32px">
+  <h1 style="font-size:20px;font-weight:500">Reasons Reference</h1>
+</header>
+
+<!-- Main content -->
+<main>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <input id="rSearch" type="search" placeholder="Filter reasons…">
+  </div>
+  <div class="card"><table id="rTbl"></table></div>
+</main>
+
+<script>if(!sessionStorage.getItem('voiAuth')) location='login.html';</script>
+
+<footer>Maryland State Police • VOI v2.0 • © 2025</footer>
+
+<script>
+/* Static data → swap with /reasons API */
+const REASONS=[
+  {name:'Amber Alert',desc:'Child abduction alert',count:5},
+  {name:'Silver Alert',desc:'Missing elderly person',count:7},
+  {name:'Stolen',desc:'Vehicle reported stolen',count:10},
+  {name:'Arrest Warrant',desc:'Owner has active warrant',count:3}
+];
+
+/* Render helper */
+function render(list){
+  document.getElementById('rTbl').innerHTML=
+    `<thead><tr>
+       <th data-k="name">Reason</th><th>Description</th><th data-k="count"># Active</th>
+     </tr></thead>
+     <tbody>${list.map(r=>`<tr><td>${r.name}</td><td>${r.desc}</td><td>${r.count}</td></tr>`).join('')}</tbody>`;
+  document.querySelectorAll('#rTbl th[data-k]').forEach(th=>{
+    th.onclick=()=>{const k=th.dataset.k;render([...list].sort((a,b)=>String(a[k]).localeCompare(String(b[k]))));};
+  });
+}
+render(REASONS);
+
+/* Filter box */
+document.getElementById('rSearch').oninput=e=>{
+  const q=e.target.value.toUpperCase();
+  render(REASONS.filter(r=>r.name.toUpperCase().includes(q)||r.desc.toUpperCase().includes(q)));
+};
+</script>
+</body></html>

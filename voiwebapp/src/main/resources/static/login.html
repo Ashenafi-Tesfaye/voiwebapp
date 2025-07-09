@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><title>VOI • Login</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<!-- ─── MSP Brand CSS ─── -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+:root{ --navy:#002D62; --gold:#FFCC00; --bg:#F5F7FA; --surface:#FFF; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Roboto,sans-serif;
+  background:var(--bg);
+  height:100vh;display:flex;justify-content:center;align-items:center;
+}
+form{
+  background:var(--surface);
+  padding:44px 48px;
+  border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.15);
+  width:320px;               /* fixed width for neat alignment */
+  display:flex;flex-direction:column;gap:16px;  /* consistent vertical rhythm */
+}
+h2{color:var(--navy);margin-bottom:8px;text-align:center}
+input{
+  width:100%;padding:10px;
+  border:1px solid #ccc;border-radius:4px;font-size:14px;
+}
+button{
+  width:100%;
+  padding:12px 0;
+  background:var(--gold);border:none;
+  border-radius:4px;
+  font-weight:500;font-size:15px;cursor:pointer;
+}
+p.error{color:#C62828;text-align:center;font-size:14px;height:18px}
+</style>
+</head><body>
+
+<form id="loginForm" aria-label="Officer login">
+  <h2>Secure Officer Login</h2>
+  <input type="text" id="user" placeholder="Badge / Username" required aria-label="username">
+  <input type="password" id="pass" placeholder="Password" required aria-label="password">
+  <button type="submit">Sign in</button>
+  <p id="msg" class="error" aria-live="assertive"></p>
+</form>
+
+<script>
+/*  Demo-mode authentication
+    – succeed if both fields are non-empty                        */
+document.getElementById('loginForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const u=document.getElementById('user').value.trim();
+  const p=document.getElementById('pass').value.trim();
+  if(u && p){
+    sessionStorage.setItem('voiAuth','ok');   // simple session flag
+    location='index.html';                    // go to dashboard
+  }else{
+    document.getElementById('msg').textContent='Both fields are required';
+  }
+});
+</script>
+</body></html>

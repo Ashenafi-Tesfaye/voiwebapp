@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><title>VOI • Vehicles</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- ─── Shared MSP Theme ─── -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+:root{
+  --navy:#002D62;--gold:#FFCC00;--bg:#F5F7FA;--surface:#FFFFFF;
+  --badge-silver:#607D8B;--badge-amber:#F57C00;--badge-stolen:#C62828;--badge-warrant:#6A1B9A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Roboto,sans-serif;background:var(--bg);color:#212121;display:flex;min-height:100vh}
+/* Layout */
+aside{width:240px;background:var(--navy);color:#FFF;position:fixed;inset-block:0;left:0;padding-top:64px}
+aside a{display:flex;gap:12px;align-items:center;padding:14px 24px;color:#FFF;text-decoration:none;font-size:15px}
+aside a:hover,aside a.active{background:#003B84}
+header{height:64px;position:fixed;left:240px;right:0;top:0;background:var(--navy);color:#FFF;display:flex;align-items:center;gap:16px;padding:0 24px}
+main{margin:88px 32px 64px 272px;flex:1}
+footer{position:fixed;left:240px;right:0;bottom:0;background:#37474F;color:#FFF;text-align:center;padding:8px;font-size:13px}
+/* Card & badges */
+.card{background:var(--surface);border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.08);padding:16px}
+.badge{padding:4px 10px;border-radius:12px;color:#FFF;font-size:12px;font-weight:500}
+.badge-silver{background:var(--badge-silver)}.badge-amber{background:var(--badge-amber)}
+.badge-stolen{background:var(--badge-stolen)}.badge-warrant{background:var(--badge-warrant)}
+/* Table */
+table{width:100%;border-collapse:collapse;background:var(--surface)}
+th,td{padding:12px;border-bottom:1px solid #E0E0E0}
+th{background:#FAFAFA;text-align:left;font-weight:600;font-size:14px;cursor:pointer}
+tr:hover{background:#F0F0F0;cursor:pointer}
+@media(max-width:767px){aside{display:none}header{left:0}main{margin:88px 16px 64px 16px}footer{left:0}}
+</style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head><body>
+
+<!-- SideNav -->
+<aside aria-label="Primary">
+  <a href="index.html"><span class="material-icons">dashboard</span>Dashboard</a>
+  <a href="vehicles.html" class="active"><span class="material-icons">directions_car</span>Vehicles</a>
+  <a href="reasons.html"><span class="material-icons">info</span>Reasons</a>
+  <a href="help.html"><span class="material-icons">help</span>Help</a>
+</aside>
+
+<!-- AppBar -->
+<header>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Seal_of_the_Maryland_State_Police.svg" alt="" style="height:32px">
+  <h1 style="font-size:20px;font-weight:500">Vehicles of Interest</h1>
+</header>
+
+<!-- Main -->
+<main>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <input id="search" type="search" placeholder="Plate, make, model…" style="padding:8px 10px;width:280px">
+  </div>
+  <div class="card"><table id="vehTbl"></table></div>
+</main>
+
+<script>if(!sessionStorage.getItem('voiAuth')) location='login.html';</script>
+
+<footer>Maryland State Police • VOI v2.0 • © 2025</footer>
+
+<!-- Modal -->
+<div id="modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4)" role="dialog" aria-modal="true">
+  <div style="background:var(--surface);border-radius:8px;max-width:720px;margin:80px auto;padding:24px;position:relative">
+    <button id="close" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px" aria-label="Close">&times;</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Mock data (swap with real API calls) ---------- */
+let VEHICLES=[
+  {plate:'ABC123',reason:'Amber Alert',make:'Toyota',model:'Camry',color:'Silver',year:2018,owner:'Jane Doe',updated:'2025-06-22'},
+  {plate:'XYZ987',reason:'Stolen',make:'Ford',model:'F-150',color:'Black',year:2020,owner:'John Smith',updated:'2025-06-21'},
+  {plate:'DEF456',reason:'Silver Alert',make:'Honda',model:'Civic',color:'Blue',year:2015,owner:'Mary Jones',updated:'2025-06-20'}
+];
+
+/* ---------- Helpers ---------- */
+const bClass=r=>({'Silver Alert':'badge-silver','Amber Alert':'badge-amber','Stolen':'badge-stolen','Arrest Warrant':'badge-warrant'}[r]||'badge-silver');
+const buildRows=list=>list.map(v=>`
+<tr tabindex="0" data-p="${v.plate}">
+  <td>${v.plate}</td>
+  <td><span class="badge ${bClass(v.reason)}">${v.reason}</span></td>
+  <td>${v.make}</td><td>${v.model}</td><td>${v.color}</td><td>${v.year}</td>
+  <td>${v.owner}</td><td>${v.updated}</td>
+</tr>`).join('');
+
+/* ---------- Render table ---------- */
+function render(data){
+  document.getElementById('vehTbl').innerHTML=
+    `<thead><tr>
+      <th data-k="plate">Plate</th><th data-k="reason">Reason</th>
+      <th data-k="make">Make</th><th data-k="model">Model</th>
+      <th data-k="color">Color</th><th data-k="year">Year</th>
+      <th data-k="owner">Owner</th><th data-k="updated">Updated</th>
+    </tr></thead><tbody>${buildRows(data)}</tbody>`;
+  attachRowEvents();
+  attachSorters(data);
+}
+render(VEHICLES);
+
+/* ---------- Search ---------- */
+document.getElementById('search').addEventListener('input',e=>{
+  const q=e.target.value.toUpperCase();
+  render(VEHICLES.filter(v=>[v.plate,v.make,v.model].some(s=>s.toUpperCase().includes(q))));
+});
+
+/* ---------- Sort ---------- */
+function attachSorters(data){
+  document.querySelectorAll('#vehTbl th').forEach(th=>{
+    th.onclick=()=>{
+      const key=th.dataset.k;
+      data.sort((a,b)=>String(a[key]).localeCompare(String(b[key])));
+      render([...data]); // re-render
+    };
+  });
+}
+
+/* ---------- Modal ---------- */
+function attachRowEvents(){
+  document.querySelectorAll('[data-p]').forEach(r=>{
+    r.onclick=()=>openModal(r.dataset.p);
+    r.onkeydown=e=>e.key==='Enter'&&openModal(r.dataset.p);
+  });
+}
+function openModal(plate){
+  const v=VEHICLES.find(x=>x.plate===plate);
+  document.getElementById('modalBody').innerHTML=`
+    <h3>${v.plate} <span class="badge ${bClass(v.reason)}">${v.reason}</span></h3><br>
+    <p><strong>Make:</strong> ${v.make}</p>
+    <p><strong>Model:</strong> ${v.model}</p>
+    <p><strong>Color:</strong> ${v.color}</p>
+    <p><strong>Year:</strong> ${v.year || 'Unknown'}</p>
+    <p><strong>Owner:</strong> ${v.owner || 'Unknown'}</p>
+    <p><strong>Last Update:</strong> ${v.updated}</p>`;
+  document.getElementById('modal').style.display='block';
+}
+document.getElementById('close').onclick=()=>document.getElementById('modal').style.display='none';
+window.onkeydown=e=>e.key==='Escape'&&(document.getElementById('modal').style.display='none');
+</script>
+</body></html>
